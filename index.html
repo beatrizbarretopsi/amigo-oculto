@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#FAF7FC">
+<title>Amigo Oculto das Cores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF7FC;
+    --ink:#2B2233;
+    --muted:#6E6478;
+    --serif:"Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --sans:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --s:min(78vw, 340px);
+    /* definidas quando a cor é revelada */
+    --cor:#ffffff;
+    --tinta:#2B2233;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+  .cena{
+    position:fixed; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:max(28px, env(safe-area-inset-top)) 28px max(28px, env(safe-area-inset-bottom));
+    text-align:center;
+    z-index:2;
+  }
+  .cena[hidden]{display:none}
+
+  .marca{
+    position:absolute; top:max(26px, env(safe-area-inset-top));
+    left:0; right:0;
+    font-weight:600; font-size:15px; letter-spacing:.01em;
+    color:var(--muted);
+  }
+
+  /* ---------- papéis de seda ---------- */
+  .seda{
+    position:relative;
+    width:var(--s); height:var(--s);
+    isolation:isolate;
+    margin-bottom:clamp(18px, 4vh, 36px);
+  }
+  .t{
+    position:absolute;
+    width:calc(var(--s) * .56); height:calc(var(--s) * .56);
+    left:calc(50% - var(--s) * .28); top:calc(50% - var(--s) * .28);
+    border-radius:50%;
+    background:var(--c);
+    mix-blend-mode:multiply;
+    opacity:.92;
+    translate:calc(var(--dx) * var(--s)) calc(var(--dy) * var(--s));
+    animation:flutuar var(--d) ease-in-out var(--a) infinite alternate;
+  }
+  @keyframes flutuar{
+    from{scale:1; rotate:0deg}
+    to{scale:1.07; rotate:14deg}
+  }
+  .seda.mistura{animation:giro 2.4s cubic-bezier(.45,0,.55,1) infinite}
+  .seda.mistura .t{
+    translate:calc(var(--dx) * var(--s) * .38) calc(var(--dy) * var(--s) * .38);
+    mix-blend-mode:normal;
+    opacity:.62;
+    transition:translate 1s cubic-bezier(.6,0,.2,1);
+    animation:matiz 1.9s linear var(--a) infinite;
+  }
+  @keyframes giro{to{rotate:360deg}}
+  @keyframes matiz{
+    0%{filter:hue-rotate(0deg); scale:.95}
+    50%{scale:1.06}
+    100%{filter:hue-rotate(360deg); scale:.95}
+  }
+
+  /* ---------- tipografia ---------- */
+  .ola{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(52px, 17vw, 100px);
+    line-height:.98;
+    letter-spacing:-.01em;
+    max-width:11ch;
+    overflow-wrap:anywhere;
+  }
+  .ola em{font-style:italic}
+  .texto{
+    margin-top:16px;
+    max-width:27ch;
+    font-size:18px;
+    color:var(--muted);
+  }
+  .botao{
+    margin-top:30px;
+    min-height:58px;
+    padding:0 34px;
+    border:0; border-radius:999px;
+    background:var(--ink); color:#fff;
+    font:600 18px/1 var(--sans);
+    cursor:pointer;
+    box-shadow:0 10px 24px -10px rgba(43,34,51,.55);
+    transition:transform .18s ease, box-shadow .18s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .botao:active{transform:scale(.97)}
+  .botao:focus-visible, .link:focus-visible{outline:3px solid #8F7CF0; outline-offset:4px}
+  .aviso{
+    margin-top:22px; font-size:14px; color:var(--muted); max-width:30ch;
+  }
+
+  /* ---------- suspense ---------- */
+  #suspense{gap:0}
+  .fala{
+    font-family:var(--serif); font-style:italic;
+    font-size:clamp(30px, 8.5vw, 44px);
+    line-height:1.1;
+    min-height:1.2em;
+    transition:opacity .35s ease;
+  }
+  .fala.some{opacity:0}
+
+  /* ---------- revelação ---------- */
+  .lavagem{
+    position:fixed; inset:0; z-index:5;
+    background:var(--cor);
+    background:radial-gradient(120% 80% at 50% 0%,
+      color-mix(in srgb, var(--cor) 62%, white) 0%,
+      var(--cor) 58%,
+      color-mix(in srgb, var(--cor) 84%, black) 100%);
+    clip-path:circle(0 at var(--x,50%) var(--y,70%));
+    pointer-events:none;
+  }
+  .lavagem.on{
+    clip-path:circle(160vmax at var(--x,50%) var(--y,70%));
+    transition:clip-path 1.15s cubic-bezier(.22,.7,.2,1);
+  }
+  #revelacao{z-index:6; color:var(--tinta); justify-content:center}
+  .sua{
+    font-size:19px; font-weight:500;
+    opacity:.88;
+  }
+  .nome-cor{
+    margin-top:2px;
+    font-family:var(--serif); font-style:italic; font-weight:400;
+    font-size:clamp(52px, calc((100vw - 56px) / (var(--n, 6) * .56)), 190px);
+    line-height:.95;
+    letter-spacing:-.02em;
+    white-space:nowrap;
+  }
+  #revelacao.entra .sua{animation:surge .7s .1s both cubic-bezier(.2,.8,.2,1)}
+  #revelacao.entra .nome-cor{animation:estoura .95s .2s both cubic-bezier(.2,.9,.25,1.1)}
+  #revelacao.entra .segredo, #revelacao.entra .link{animation:surge .8s 1s both ease}
+  @keyframes surge{from{opacity:0; translate:0 10px} to{opacity:1; translate:0 0}}
+  @keyframes estoura{
+    from{opacity:0; scale:.55; filter:blur(14px)}
+    to{opacity:1; scale:1; filter:blur(0)}
+  }
+  .segredo{
+    margin-top:30px; max-width:24ch;
+    font-size:18px; font-weight:500;
+  }
+  .link{
+    margin-top:22px;
+    background:none; border:0; cursor:pointer;
+    font:600 15px/1 var(--sans);
+    color:var(--tinta);
+    text-decoration:underline; text-underline-offset:5px;
+    padding:12px; opacity:.85;
+  }
+
+  .confete{
+    position:fixed; top:-6vh; z-index:5; pointer-events:none;
+    width:var(--w); height:calc(var(--w) * 1.5);
+    border-radius:60% 40% 60% 40%;
+    background:var(--bg);
+    animation:cair var(--dur) var(--atraso) cubic-bezier(.3,.1,.5,1) forwards;
+  }
+  @keyframes cair{
+    0%{translate:0 0; rotate:0deg; opacity:1}
+    85%{opacity:1}
+    100%{translate:var(--desvio) 112vh; rotate:var(--giro); opacity:0}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .t, .seda.mistura, .seda.mistura .t{animation:none !important}
+    .lavagem.on{transition-duration:.01s}
+    #revelacao.entra *{animation:none !important}
+  }
+  @media (min-height:760px){ .marca{font-size:16px} }
+</style>
+</head>
+<body>
+
+<!-- sem link pessoal -->
+<main class="cena" id="inicio" hidden>
+  <p class="marca">Amigo Oculto das Cores</p>
+  <div class="seda" aria-hidden="true"></div>
+  <h1 class="ola" style="font-size:clamp(40px,12vw,64px);max-width:12ch">Abra o seu link pessoal</h1>
+  <p class="texto">Esta página não guarda nenhuma cor. Cada pessoa recebeu um link só dela pelo WhatsApp.</p>
+</main>
+
+<!-- boas-vindas -->
+<main class="cena" id="boasvindas" hidden>
+  <p class="marca">Amigo Oculto das Cores</p>
+  <div class="seda" id="seda-bv" aria-hidden="true"></div>
+  <h1 class="ola">Oi, <em id="nome"></em></h1>
+  <p class="texto">Sua cor já foi sorteada e está guardada neste link.</p>
+  <button class="botao" id="revelar" type="button">Revelar minha cor</button>
+  <p class="aviso">O link é só seu. Não encaminhe para ninguém.</p>
+</main>
+
+<!-- suspense -->
+<main class="cena" id="suspense" hidden aria-live="polite">
+  <div class="seda" id="seda-sp" aria-hidden="true"></div>
+  <p class="fala" id="fala">Misturando as tintas…</p>
+</main>
+
+<!-- erro -->
+<main class="cena" id="erro" hidden>
+  <p class="marca">Amigo Oculto das Cores</p>
+  <div class="seda" aria-hidden="true"></div>
+  <h1 class="ola" style="font-size:clamp(38px,11vw,60px);max-width:12ch">Este link não abriu</h1>
+  <p class="texto">O endereço está incompleto ou foi alterado. Peça para quem organizou o sorteio reenviar o seu link e abra o endereço inteiro.</p>
+</main>
+
+<div class="lavagem" id="lavagem"></div>
+
+<!-- revelação -->
+<main class="cena" id="revelacao" hidden>
+  <p class="sua"><span id="nome2"></span>, sua cor é</p>
+  <p class="nome-cor" id="cor-nome"></p>
+  <p class="segredo">Agora é só guardar segredo. 🤫</p>
+  <button class="link" id="de-novo" type="button">Ver a revelação de novo</button>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var cenas = ["inicio","boasvindas","suspense","erro","revelacao"].map($);
+  var lavagem = $("lavagem");
+  var reduzir = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Papéis de seda decorativos: tons genéricos, não indicam nenhuma cor sorteada.
+  var TONS = ["#F7A8C8","#B9A5F2","#8EC5F2","#8FD9B0","#F9DF7C"];
+  var ANGULOS = [-90,-18,54,126,198];
+
+  function montarSeda(el){
+    el.innerHTML = "";
+    TONS.forEach(function(c,i){
+      var r = ANGULOS[i] * Math.PI / 180;
+      var d = document.createElement("span");
+      d.className = "t";
+      d.style.setProperty("--c", c);
+      d.style.setProperty("--dx", (Math.cos(r)*.19).toFixed(3));
+      d.style.setProperty("--dy", (Math.sin(r)*.19).toFixed(3));
+      d.style.setProperty("--d", (5.5 + i*.9).toFixed(1) + "s");
+      d.style.setProperty("--a", (-i*.7).toFixed(1) + "s");
+      el.appendChild(d);
+    });
+  }
+  document.querySelectorAll(".seda").forEach(montarSeda);
+
+  function mostrar(id){
+    cenas.forEach(function(c){ c.hidden = (c.id !== id); });
+  }
+
+  // ---------- leitura do link ----------
+  function b64u(s){
+    s = s.replace(/-/g,"+").replace(/_/g,"/");
+    s += "=".repeat((4 - s.length % 4) % 4);
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i=0;i<bin.length;i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  var HEX = /^#[0-9a-fA-F]{6}$/;
+
+  async function abrir(frag){
+    var p = frag.split(".");
+    if (p.length !== 3 || p[0] !== "v1") throw new Error("formato");
+    var chave = b64u(p[1]), dados = b64u(p[2]);
+    if (chave.length !== 32 || dados.length < 29) throw new Error("tamanho");
+    if (!window.crypto || !crypto.subtle) throw new Error("sem-crypto");
+    var k = await crypto.subtle.importKey("raw", chave, "AES-GCM", false, ["decrypt"]);
+    var claro = await crypto.subtle.decrypt({name:"AES-GCM", iv:dados.slice(0,12)}, k, dados.slice(12));
+    var o = JSON.parse(new TextDecoder().decode(claro));
+    if (typeof o.n !== "string" || typeof o.c !== "string" ||
+        !HEX.test(o.h) || !HEX.test(o.i) || o.n.length > 40 || o.c.length > 24) throw new Error("conteudo");
+    return {nome:o.n, cor:o.c, hex:o.h, tinta:o.i, id:p[2].slice(0,16)};
+  }
+
+  // ---------- estado ----------
+  var temporizadores = [];
+  function limpar(){
+    temporizadores.forEach(clearTimeout); temporizadores = [];
+    document.querySelectorAll(".confete").forEach(function(n){ n.remove(); });
+    $("seda-sp").classList.remove("mistura");
+    $("revelacao").classList.remove("entra");
+    lavagem.classList.add("instante"); lavagem.classList.remove("on");
+    lavagem.style.transition = "none";
+    void lavagem.offsetWidth;
+    lavagem.style.transition = "";
+    lavagem.classList.remove("instante");
+  }
+  function esperar(fn, ms){ temporizadores.push(setTimeout(fn, ms)); }
+
+  function lembrar(id){ try{ localStorage.setItem("aoc:"+id, "1"); }catch(e){} }
+  function jaViu(id){ try{ return localStorage.getItem("aoc:"+id) === "1"; }catch(e){ return false; } }
+
+  function confete(){
+    if (reduzir) return;
+    var cores = [
+      "color-mix(in srgb, var(--cor) 50%, white)",
+      "rgba(255,255,255,.9)",
+      "color-mix(in srgb, var(--cor) 78%, black)",
+      "color-mix(in srgb, var(--cor) 30%, white)"
+    ];
+    for (var i=0;i<38;i++){
+      var n = document.createElement("span");
+      n.className = "confete";
+      n.style.left = (Math.random()*100) + "vw";
+      n.style.setProperty("--w", (8 + Math.random()*9).toFixed(1) + "px");
+      n.style.setProperty("--bg", cores[i % cores.length]);
+      n.style.setProperty("--dur", (3.2 + Math.random()*2.4).toFixed(2) + "s");
+      n.style.setProperty("--atraso", (Math.random()*1.1).toFixed(2) + "s");
+      n.style.setProperty("--desvio", ((Math.random()-.5)*140).toFixed(0) + "px");
+      n.style.setProperty("--giro", ((Math.random()-.5)*900).toFixed(0) + "deg");
+      document.body.appendChild(n);
+      (function(el){ setTimeout(function(){ el.remove(); }, 7500); })(n);
+    }
+  }
+
+  function aplicarCor(d){
+    var r = document.documentElement.style;
+    r.setProperty("--cor", d.hex);
+    r.setProperty("--tinta", d.tinta);
+    $("nome2").textContent = d.nome;
+    $("cor-nome").textContent = d.cor;
+    $("cor-nome").style.setProperty("--n", Math.max(d.cor.length, 4));
+    document.querySelector('meta[name="theme-color"]').setAttribute("content", d.hex);
+  }
+
+  function revelar(d, origem, rapido){
+    aplicarCor(d);
+    if (origem){
+      var b = origem.getBoundingClientRect();
+      lavagem.style.setProperty("--x", (b.left + b.width/2) + "px");
+      lavagem.style.setProperty("--y", (b.top + b.height/2) + "px");
+    }
+    lavagem.classList.add("on");
+    esperar(function(){
+      mostrar("revelacao");
+      var rv = $("revelacao");
+      rv.classList.remove("entra"); void rv.offsetWidth; rv.classList.add("entra");
+      confete();
+      lembrar(d.id);
+    }, rapido ? 0 : (reduzir ? 50 : 650));
+  }
+
+  function suspense(d, origem){
+    limpar();
+    var sp = $("seda-sp"), fala = $("fala");
+    mostrar("suspense");
+    montarSeda(sp);
+    fala.textContent = "Misturando as tintas…";
+    fala.classList.remove("some");
+    if (reduzir){ esperar(function(){ revelar(d, origem); }, 1200); return; }
+    void sp.offsetWidth;
+    sp.classList.add("mistura");
+    function troca(txt){
+      fala.classList.add("some");
+      esperar(function(){ fala.textContent = txt; fala.classList.remove("some"); }, 320);
+    }
+    esperar(function(){ troca("Quase lá…"); }, 1500);
+    esperar(function(){ troca("Prepare o coração…"); }, 3000);
+    esperar(function(){
+      var c = sp.getBoundingClientRect();
+      revelar(d, {getBoundingClientRect:function(){ return {left:c.left,top:c.top,width:c.width,height:c.height}; }});
+    }, 4300);
+  }
+
+  async function iniciar(){
+    limpar();
+    var frag = location.hash.replace(/^#/, "");
+    if (!frag){ mostrar("inicio"); return; }
+    var d;
+    try { d = await abrir(frag); }
+    catch(e){ mostrar("erro"); return; }
+
+    $("revelar").onclick = function(){ suspense(d, $("revelar")); };
+    $("de-novo").onclick = function(){ suspense(d, $("de-novo")); };
+    if (jaViu(d.id)){
+      revelar(d, null, true);
+      return;
+    }
+    $("nome").textContent = d.nome + ".";
+    mostrar("boasvindas");
+  }
+
+  window.addEventListener("hashchange", iniciar);
+  iniciar();
+})();
+</script>
+</body>
+</html>
